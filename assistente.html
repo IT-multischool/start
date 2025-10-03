@@ -815,7 +815,7 @@
       class CodeBotAssistant {
         constructor() {
           // CONFIGURA AQUI A TUA API KEY DO GEMINI
-          this.webhookUrl = "http://192.168.1.2:5678/webhook/codebot";
+          this.webhookUrl = "https://192.168.1.2:5678/webhook/codebot";
 
           this.currentChatId = null;
           this.chats = this.loadChats();
@@ -1032,7 +1032,7 @@
         }
 
         async getGeminiResponse(message) {
-          const webhookUrl = "http://192.168.1.2:5678/webhook/codebot";
+          const webhookUrl = "https://192.168.1.2:5678/webhook/codebot";
 
           const requestBody = {
             message: message,
