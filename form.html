@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Start 2.0 - Assistente de Inscrição</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #b3e234;
+            --dark-green: #9dd129;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-quaternary: #242424;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
+            --border-color: #333333;
+            --shadow-primary: 0 4px 20px rgba(179, 226, 52, 0.1);
+            --shadow-secondary: 0 2px 10px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f0f0f 100%);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-secondary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+        }
+
+        .logo-section {
+            padding: 0 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--bg-primary);
+            font-weight: bold;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .progress-section {
+            padding: 0 24px;
+            margin-bottom: 32px;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .progress-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-percentage {
+            font-size: 12px;
+            color: var(--primary-green);
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-quaternary);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-green), var(--dark-green));
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 3px;
+        }
+
+        .steps-section {
+            flex: 1;
+            padding: 0 24px;
+            overflow-y: auto;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            transition: var(--transition);
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            transition: var(--transition);
+        }
+
+        .step-item.pending .step-number {
+            background: var(--bg-quaternary);
+            color: var(--text-muted);
+        }
+
+        .step-item.current .step-number {
+            background: var(--primary-green);
+            color: var(--bg-primary);
+        }
+
+        .step-item.completed .step-number {
+            background: var(--primary-green);
+            color: var(--bg-primary);
+        }
+
+        .step-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .step-item.current .step-text {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .step-item.completed .step-text {
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+
+        .header {
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 80px);
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            scroll-behavior: smooth;
+        }
+
+        .messages-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages-area::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .messages-area::-webkit-scrollbar-thumb {
+            background: var(--bg-quaternary);
+            border-radius: 3px;
+        }
+
+        .message {
+            margin-bottom: 32px;
+            animation: messageSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bot-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            max-width: 80%;
+        }
+
+        .bot-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .bot-avatar i {
+            color: var(--bg-primary);
+            font-size: 16px;
+        }
+
+        .bot-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .bot-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .bot-text {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 20px 24px;
+            border-radius: 16px 16px 16px 4px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+            position: relative;
+            box-shadow: var(--shadow-secondary);
+        }
+
+        .bot-text::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary-green), var(--dark-green));
+            border-radius: 2px;
+        }
+
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .user-content {
+            max-width: 70%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .user-text {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: var(--bg-primary);
+            padding: 16px 20px;
+            border-radius: 16px 16px 4px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            box-shadow: var(--shadow-primary);
+        }
+
+        /* Options */
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .option-btn {
+            padding: 12px 18px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-btn:hover {
+            background: var(--bg-quaternary);
+            border-color: var(--primary-green);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-primary);
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .typing-content {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 16px 24px;
+            border-radius: 16px 16px 16px 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(3) { animation-delay: 0; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .typing-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 24px 32px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            max-width: 100%;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            min-height: 48px;
+            max-height: 120px;
+            padding: 14px 50px 14px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.4;
+            resize: none;
+            outline: none;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(179, 226, 52, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .attachment-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            border-radius: 16px;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .attachment-btn:hover {
+            background: var(--bg-quaternary);
+            color: var(--text-primary);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            border: none;
+            border-radius: 24px;
+            color: var(--bg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-primary);
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(179, 226, 52, 0.3);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Agreement Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 24px;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 32px 32px 0;
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-green);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-body {
+            padding: 24px 32px 32px;
+        }
+
+        .company-info {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--primary-green);
+            padding: 24px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .company-info h3 {
+            color: var(--primary-green);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-item i {
+            width: 16px;
+            color: var(--primary-green);
+        }
+
+        .info-item strong {
+            color: var(--text-primary);
+            min-width: 80px;
+        }
+
+        .terms-section {
+            margin: 24px 0;
+        }
+
+        .terms-section h4 {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terms-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .terms-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .terms-list li::before {
+            content: '•';
+            color: var(--primary-green);
+            position: absolute;
+            left: 8px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            padding-top: 24px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: var(--bg-primary);
+            box-shadow: var(--shadow-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(179, 226, 52, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-quaternary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 16px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .logo-section {
+                padding: 0 16px 0 0;
+                border-bottom: none;
+                border-right: 1px solid var(--border-color);
+                margin: 0 16px 0 0;
+                flex-shrink: 0;
+            }
+            
+            .progress-section {
+                padding: 0 16px 0 0;
+                margin: 0 16px 0 0;
+                border-right: 1px solid var(--border-color);
+                min-width: 120px;
+            }
+            
+            .steps-section {
+                display: none;
+            }
+            
+            .main-content {
+                height: calc(100vh - 120px);
+            }
+            
+            .messages-area {
+                padding: 20px;
+            }
+            
+            .bot-message {
+                max-width: 95%;
+            }
+            
+            .user-content {
+                max-width: 85%;
+            }
+            
+            .input-area {
+                padding: 16px 20px;
+            }
+        }
+
+        /* Custom Select Styles */
+        .select-container {
+            position: relative;
+            margin-top: 16px;
+        }
+
+        .custom-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-quaternary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .custom-select:focus {
+            border-color: var(--primary-green);
+            outline: none;
+        }
+
+        /* Checkbox Group Styles */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-quaternary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .checkbox-item:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--primary-green);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-green);
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            flex: 1;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .checkbox-description {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">
+                          <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="16"
+                        viewBox="0 0 35 40"
+                        fill="none"
+                      >
+                        <path
+                          d="M10 28L2 20L10 12"
+                          stroke="black"
+                          stroke-width="3"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M25 12L33 20L25 28"
+                          stroke="black"
+                          stroke-width="3"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M14 34L21 6"
+                          stroke="black"
+                          stroke-width="3"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    </div>
+                    <div class="logo-text">
+                        <h1><a href="index.html" style="text-decoration: none; color: #FFF;">Code Start 2.0</a></h1>
+                        <p>Powered by: Nzila X</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-title">Progresso</span>
+                    <span class="progress-percentage" id="progressPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="steps-section" id="stepsList">
+                <!-- Steps will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">
+                    <h2>Assistente de Inscrição</h2>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span class="status-text">Online</span>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="messages-area" id="messagesArea">
+                    <!-- Welcome Message -->
+                    <div class="message">
+                        <div class="bot-message">
+                            <div class="bot-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="bot-content">
+                                <div class="message-header">
+                                    <span class="bot-name">Assistente codestart20</span>
+                                    <span class="message-time" id="currentTime"></span>
+                                </div>
+                                <div class="bot-text">
+                                    Olá! Bem-vindo ao formulário de inscrição <strong>Code Start 2.0</strong> 🎉<br><br>
+                                    Sou o seu assistente virtual e vou ajudá-lo a completar a sua inscrição nos nossos cursos de tecnologia.<br><br>
+                                    Antes de começarmos, preciso informá-lo que a <strong>taxa de inscrição é de 15.000 Kz</strong>. Esta taxa garante o seu acesso completo ao curso, materiais didáticos e certificado.<br><br>
+                                    Está de acordo em prosseguir com a inscrição?
+                                </div>
+                                <div class="options-container">
+                                    <button class="option-btn" onclick="agreeToPayment()">
+                                        <i class="fas fa-check"></i> Concordo e quero prosseguir
+                                    </button>
+                                    <button class="option-btn" onclick="showAgreementModal()">
+                                        <i class="fas fa-file-contract"></i> Ver termos e condições
+                                    </button>
+                                    <button class="option-btn" onclick="declinePayment()">
+                                        <i class="fas fa-times"></i> Não posso pagar agora
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="bot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="typing-content">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                        <span class="typing-text">Assistente está a escrever...</span>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area" id="inputArea" style="display: none;">
+                    <div class="input-container">
+                        <div class="input-wrapper">
+                            <textarea class="input-field" id="userInput" 
+                                     placeholder="Digite a sua resposta..." 
+                                     rows="1"
+                                     onkeydown="handleKeyPress(event)"></textarea>
+                            <button class="attachment-btn">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                        </div>
+                        <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agreement Modal -->
+    <div class="modal-overlay" id="agreementModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-contract"></i> Termos e Condições</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="company-info">
+                    <h3><i class="fas fa-building"></i> Informações da Empresa</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <i class="fas fa-tag"></i>
+                            <strong>Nome:</strong>
+                            <span>Code Start 2.0, Lda.</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-hashtag"></i>
+                            <strong>NIF:</strong>
+                            <span>5417258963</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <strong>Localização:</strong>
+                            <span>Rua Comandante Che Guevara, nº 45, Maianga - Luanda, Angola</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <strong>Contacto:</strong>
+                            <span>+244 923 456 789</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <strong>Email:</strong>
+                            <span>info@codestart20.ao</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-globe"></i>
+                            <strong>Website:</strong>
+                            <span>www.codestart20.ao</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="terms-section">
+                    <h4><i class="fas fa-money-bill-wave"></i> Condições de Pagamento</h4>
+                    <ul class="terms-list">
+                        <li>Taxa de inscrição: <strong>15.000 Kz</strong> (não reembolsável)</li>
+                        <li>Pagamento deve ser efetuado no prazo de <strong>48 horas</strong> após a inscrição</li>
+                        <li>Após confirmação do pagamento, receberá as credenciais de acesso em até 24h</li>
+                        <li>Curso inicia mediante atingimento do número mínimo de 15 participantes</li>
+                        <li>Material didático digital incluído na taxa de inscrição</li>
+                        <li>Certificado emitido após conclusão com aproveitamento mínimo de 70%</li>
+                        <li>Suporte técnico disponível durante todo o período do curso</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h4><i class="fas fa-headset"></i> Linha de Apoio Técnico</h4>
+                    <div class="company-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <strong>Telefone:</strong>
+                                <span>+244 923 456 789</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fab fa-whatsapp"></i>
+                                <strong>WhatsApp:</strong>
+                                <span>+244 923 456 789</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-envelope"></i>
+                                <strong>Email:</strong>
+                                <span>suporte@codestart20.ao</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <strong>Horário:</strong>
+                                <span>Segunda a Sexta, 8h às 17h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="terms-section">
+                    <h4><i class="fas fa-shield-alt"></i> Política de Privacidade</h4>
+                    <ul class="terms-list">
+                        <li>Os seus dados pessoais serão utilizados apenas para fins académicos</li>
+                        <li>Não partilhamos informações com terceiros sem o seu consentimento</li>
+                        <li>Todos os dados são armazenados de forma segura e criptografada</li>
+                        <li>Pode solicitar a remoção dos seus dados a qualquer momento</li>
+                    </ul>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="acceptAgreement()">
+                        <i class="fas fa-check"></i> Aceitar e Continuar
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let currentStep = 0;
+        let formData = {};
+        let isWaitingForResponse = false;
+
+        const steps = [
+            { id: 'agreement', name: 'Acordo de Pagamento', icon: 'fas fa-handshake' },
+            { id: 'name', name: 'Nome Completo', icon: 'fas fa-user' },
+            { id: 'age', name: 'Idade', icon: 'fas fa-birthday-cake' },
+            { id: 'location', name: 'Localização', icon: 'fas fa-map-marker-alt' },
+            { id: 'education', name: 'Nível Académico', icon: 'fas fa-graduation-cap' },
+            { id: 'contacts', name: 'Contactos', icon: 'fas fa-phone' },
+            { id: 'motivation', name: 'Motivação', icon: 'fas fa-heart' },
+            { id: 'reference', name: 'Como Soube do Curso', icon: 'fas fa-bullhorn' },
+            { id: 'courses', name: 'Área de Interesse', icon: 'fas fa-laptop-code' },
+            { id: 'verification', name: 'Verificação', icon: 'fas fa-shield-check' },
+            { id: 'payment', name: 'Pagamento', icon: 'fas fa-credit-card' }
+        ];
+
+        const provinces = [
+            'Bengo', 'Benguela', 'Bié', 'Cabinda', 'Cuando-Cubango', 'Cuanza-Norte',
+            'Cuanza-Sul', 'Cunene', 'Huambo', 'Huíla', 'Luanda', 'Lunda-Norte',
+            'Lunda-Sul', 'Malanje', 'Moxico', 'Namibe', 'Uíge', 'Zaire'
+        ];
+
+        const municipalities = {
+            'Luanda': ['Belas', 'Cacuaco', 'Cazenga', 'Ícolo e Bengo', 'Luanda', 'Quiçama', 'Talatona', 'Viana'],
+            'Bengo': ['Ambriz', 'Bula-Atumba', 'Dande', 'Dembos', 'Nambuangongo', 'Pango-Aluquém'],
+            'Benguela': ['Balombo', 'Baía Farta', 'Benguela', 'Bocoio', 'Caimbambo', 'Catumbela', 'Chongoroi', 'Cubal', 'Ganda', 'Lobito'],
+            'Bié': ['Andulo', 'Camacupa', 'Catabola', 'Chinguar', 'Chitembo', 'Cuemba', 'Cunhinga', 'Kuito', 'Nharea'],
+            'Cabinda': ['Belize', 'Buco-Zau', 'Cabinda', 'Cacongo'],
+            'Cuando-Cubango': ['Calai', 'Cuangar', 'Cuchi', 'Cuito-Cuanavale', 'Dirico', 'Mavinga', 'Menongue', 'Nankova', 'Rivungo'],
+            'Cuanza-Norte': ['Ambaca', 'Banga', 'Bolongongo', 'Cambambe', 'Cazengo', 'Golungo-Alto', 'Gonguembo', 'Lucala', 'Quiculungo', 'Samba-Caju'],
+            'Cuanza-Sul': ['Amboim', 'Cassongue', 'Conda', 'Ebo', 'Libolo', 'Mussende', 'Porto-Amboim', 'Quibala', 'Quilenda', 'Sumbe', 'Waku-Kungo'],
+            'Cunene': ['Cahama', 'Cuanhama', 'Curoca', 'Cuvelai', 'Namacunde', 'Ombadja'],
+            'Huambo': ['Bailundo', 'Cachiungo', 'Caála', 'Ecunha', 'Huambo', 'Londuimbali', 'Longonjo', 'Mungo', 'Tchicala-Tcholoanga', 'Tchindjenje', 'Ukuma'],
+            'Huíla': ['Caconda', 'Cacula', 'Caluquembe', 'Chiange', 'Chibia', 'Chicomba', 'Chipindo', 'Cuvango', 'Humpata', 'Jamba', 'Lubango', 'Matala', 'Quilengues', 'Quipungo'],
+            'Lunda-Norte': ['Cambulo', 'Capenda-Camulemba', 'Caungula', 'Chitato', 'Cuango', 'Cuilo', 'Dundo', 'Lubalo', 'Lucapa', 'Xá-Muteba'],
+            'Lunda-Sul': ['Cacolo', 'Dala', 'Muconda', 'Saurimo'],
+            'Malanje': ['Cambundi-Catembo', 'Cangandala', 'Caombo', 'Carimo', 'Cunda-Dia-Baze', 'Cuaba-Nzogo', 'Kiwaba-Nzoji', 'Luquembo', 'Malanje', 'Marimba', 'Massango', 'Mucari', 'Quela', 'Quirima'],
+            'Moxico': ['Alto-Zambeze', 'Bundas', 'Camanongue', 'Léua', 'Luau', 'Luacano', 'Luchazes', 'Moxico', 'Cameia'],
+            'Namibe': ['Bibala', 'Camucuio', 'Moçâmedes', 'Tombua', 'Virei'],
+            'Uíge': ['Alto-Cauale', 'Ambuíla', 'Bembe', 'Buengas', 'Bungo', 'Damba', 'Milunga', 'Mucaba', 'Negage', 'Puri', 'Quimbele', 'Quitexe', 'Sanza-Pombo', 'Songo', 'Tomboco', 'Uíge', 'Zombo'],
+            'Zaire': ['Cuimba', 'Mbanza-Congo', 'Nóqui', 'Nzeto', 'Soyo', 'Tomboco']
+        };
+
+        // Initialize the application
+        function init() {
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000); // Update every minute
+            initializeSteps();
+            autoResizeTextarea();
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-PT', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        function initializeSteps() {
+            const stepsList = document.getElementById('stepsList');
+            steps.forEach((step, index) => {
+                const stepElement = document.createElement('div');
+                stepElement.className = `step-item ${index === 0 ? 'current' : 'pending'}`;
+                stepElement.innerHTML = `
+                    <div class="step-number">${index < currentStep ? '<i class="fas fa-check"></i>' : index + 1}</div>
+                    <div class="step-text">${step.name}</div>
+                `;
+                stepsList.appendChild(stepElement);
+            });
+        }
+
+        function updateProgress() {
+            const progressPercentage = Math.round((currentStep / (steps.length - 1)) * 100);
+            document.getElementById('progressFill').style.width = progressPercentage + '%';
+            document.getElementById('progressPercentage').textContent = progressPercentage + '%';
+
+            // Update step indicators
+            const stepItems = document.querySelectorAll('.step-item');
+            stepItems.forEach((item, index) => {
+                item.className = 'step-item';
+                if (index < currentStep) {
+                    item.classList.add('completed');
+                    item.querySelector('.step-number').innerHTML = '<i class="fas fa-check"></i>';
+                } else if (index === currentStep) {
+                    item.classList.add('current');
+                } else {
+                    item.classList.add('pending');
+                }
+            });
+        }
+
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('userInput');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function scrollToBottom() {
+            const messagesArea = document.getElementById('messagesArea');
+            setTimeout(() => {
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }, 100);
+        }
+
+        function addMessage(content, isBot = true, hasOptions = false) {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+
+            const currentTime = new Date().toLocaleTimeString('pt-PT', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            if (isBot) {
+                messageDiv.innerHTML = `
+                    <div class="bot-message">
+                        <div class="bot-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="bot-content">
+                            <div class="message-header">
+                                <span class="bot-name">Assistente codestart20</span>
+                                <span class="message-time">${currentTime}</span>
+                            </div>
+                            <div class="bot-text">${content}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="user-message">
+                        <div class="user-content">
+                            <div class="user-text">${content}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            messagesArea.appendChild(messageDiv);
+            scrollToBottom();
+            return messageDiv;
+        }
+
+        function addOptions(messageElement, options) {
+            const botContent = messageElement.querySelector('.bot-content');
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options-container';
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerHTML = option.html;
+                button.onclick = option.action;
+                optionsContainer.appendChild(button);
+            });
+
+            botContent.appendChild(optionsContainer);
+        }
+
+        function showInput() {
+            document.getElementById('inputArea').style.display = 'block';
+            const input = document.getElementById('userInput');
+            input.focus();
+            input.style.height = 'auto';
+        }
+
+        function hideInput() {
+            document.getElementById('inputArea').style.display = 'none';
+        }
+
+        function sendMessage() {
+            if (isWaitingForResponse) return;
+
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            addMessage(message, false);
+            input.value = '';
+            input.style.height = 'auto';
+            isWaitingForResponse = true;
+
+            setTimeout(() => {
+                processUserInput(message);
+            }, 1000);
+        }
+
+        function processUserInput(input) {
+            showTypingIndicator();
+
+            setTimeout(() => {
+                hideTypingIndicator();
+                
+                switch(steps[currentStep].id) {
+                    case 'name':
+                        handleNameInput(input);
+                        break;
+                    case 'age':
+                        handleAgeInput(input);
+                        break;
+                    case 'location':
+                        handleLocationInput(input);
+                        break;
+                    case 'education':
+                        handleEducationInput(input);
+                        break;
+                    case 'contacts':
+                        handleContactsInput(input);
+                        break;
+                    case 'motivation':
+                        handleMotivationInput(input);
+                        break;
+                    case 'reference':
+                        handleReferenceInput(input);
+                        break;
+                    case 'verification':
+                        handleVerificationInput(input);
+                        break;
+                    default:
+                        addMessage("Desculpe, ocorreu um erro. Por favor, tente novamente.");
+                }
+                
+                isWaitingForResponse = false;
+            }, 2000);
+        }
+
+        // Individual input handlers
+        function handleNameInput(input) {
+            if (input.length < 2) {
+                addMessage("🤔 O nome parece muito curto. Pode repetir o seu <strong>nome completo</strong>, por favor?");
+                return;
+            }
+
+            formData.name = input;
+            addMessage(`Prazer em conhecê-lo, <strong>${input}</strong>! 😊<br><br>🎂 Agora preciso saber a sua <strong>idade</strong>. Quantos anos tem?`);
+            nextStep();
+        }
+
+        function handleAgeInput(input) {
+            const age = parseInt(input);
+            if (isNaN(age) || age < 14 || age > 80) {
+                addMessage("🤔 Por favor, insira uma idade válida (entre 14 e 80 anos).");
+                return;
+            }
+
+            formData.age = age;
+            const message = addMessage(`${age} anos, perfeito! 🎯<br><br>🌍 Em que <strong>província</strong> reside? Pode escolher uma das opções abaixo ou digitar o nome:`);
+            
+            const provinceOptions = provinces.slice(0, 6).map(province => ({
+                html: `<i class="fas fa-map-marker-alt"></i> ${province}`,
+                action: () => selectProvince(province)
+            }));
+            
+            provinceOptions.push({
+                html: `<i class="fas fa-list"></i> Ver todas as províncias`,
+                action: () => showAllProvinces()
+            });
+
+            addOptions(message, provinceOptions);
+            hideInput();
+            nextStep();
+        }
+
+        function handleLocationInput(input) {
+            // This will be handled by selectProvince function
+        }
+
+        function handleEducationInput(input) {
+            // This will be handled by selectEducation function
+        }
+
+        function handleContactsInput(input) {
+            if (formData.currentContactStep === 'phone1') {
+                if (!validatePhone(input)) {
+                    addMessage("📱 Por favor, insira um número de telefone válido.<br><small>Exemplo: +244 923 456 789 ou 923456789</small>");
+                    return;
+                }
+                formData.phone1 = input;
+                formData.currentContactStep = 'phone2';
+                addMessage(`Contacto principal registado: <strong>${input}</strong> ✅<br><br>📱 Tem um <strong>segundo número</strong> de telefone? (Se não tiver, digite "não")`);
+                
+            } else if (formData.currentContactStep === 'phone2') {
+                if (input.toLowerCase().includes('não') || input.toLowerCase().includes('nao')) {
+                    formData.phone2 = null;
+                } else if (!validatePhone(input)) {
+                    addMessage("📱 Por favor, insira um número de telefone válido ou digite 'não' se não tiver segundo número.");
+                    return;
+                } else {
+                    formData.phone2 = input;
+                }
+                
+                formData.currentContactStep = 'email';
+                const phone2Text = formData.phone2 ? `<br>Segundo contacto: <strong>${formData.phone2}</strong> ✅` : '';
+                addMessage(`${phone2Text}<br><br>📧 Qual é o seu <strong>endereço de email</strong>?`);
+                
+            } else if (formData.currentContactStep === 'email') {
+                if (!validateEmail(input)) {
+                    addMessage("📧 Por favor, insira um endereço de email válido.<br><small>Exemplo: seuemail@exemplo.com</small>");
+                    return;
+                }
+                formData.email = input;
+                addMessage(`Email registado: <strong>${input}</strong> ✅<br><br>💭 Agora conte-me, qual é a sua <strong>principal motivação</strong> para participar neste curso?<br><br><small>Pode falar sobre os seus objetivos, sonhos ou o que espera alcançar com este conhecimento.</small>`);
+                nextStep();
+            }
+        }
+
+        function handleMotivationInput(input) {
+            if (input.length < 10) {
+                addMessage("💭 Gostaria de saber um pouco mais sobre a sua motivação. Pode elaborar um pouco mais, por favor?");
+                return;
+            }
+
+            formData.motivation = input;
+            const message = addMessage(`Excelente motivação! 🌟<br><br>📢 Como <strong>soube sobre</strong> o nosso curso? Escolha uma das opções:`);
+            
+            const referenceOptions = [
+                { html: `<i class="fab fa-facebook"></i> Redes Sociais`, action: () => selectReference('Redes Sociais') },
+                { html: `<i class="fas fa-user-friends"></i> Amigos/Família`, action: () => selectReference('Amigos/Família') },
+                { html: `<i class="fas fa-search"></i> Pesquisa Google`, action: () => selectReference('Pesquisa Google') },
+                { html: `<i class="fas fa-bullhorn"></i> Publicidade`, action: () => selectReference('Publicidade') },
+                { html: `<i class="fas fa-newspaper"></i> Jornal/Revista`, action: () => selectReference('Jornal/Revista') },
+                { html: `<i class="fas fa-ellipsis-h"></i> Outro`, action: () => selectReference('Outro') }
+            ];
+
+            addOptions(message, referenceOptions);
+            hideInput();
+            nextStep();
+        }
+
+        function handleReferenceInput(input) {
+            // This will be handled by selectReference function
+        }
+
+        function handleVerificationInput(input) {
+            if (input.length === 6 && /^\d+$/.test(input)) {
+                // Simulate verification
+                addMessage(`✅ Código <strong>${input}</strong> verificado com sucesso!<br><br>🎉 Parabéns! O seu registo foi concluído. Agora vamos para o <strong>pagamento</strong>.<br><br>💳 Escolha como pretende receber as instruções de pagamento:`);
+                
+                const paymentMessage = document.querySelector('.message:last-child');
+                const paymentOptions = [
+                    { html: `<i class="fas fa-sms"></i> SMS`, action: () => selectPaymentMethod('SMS') },
+                    { html: `<i class="fab fa-whatsapp"></i> WhatsApp`, action: () => selectPaymentMethod('WhatsApp') },
+                    { html: `<i class="fas fa-envelope"></i> Email`, action: () => selectPaymentMethod('Email') }
+                ];
+
+                setTimeout(() => {
+                    addOptions(paymentMessage, paymentOptions);
+                }, 500);
+                
+                hideInput();
+                nextStep();
+            } else {
+                addMessage("🔐 Código inválido. Por favor, insira o código de 6 dígitos que recebeu.");
+            }
+        }
+
+        // Utility functions
+        function validatePhone(phone) {
+            const phoneRegex = /^(\+244|244)?[\s-]?[9][0-9]{8}$|^[9][0-9]{8}$/;
+            return phoneRegex.test(phone.replace(/\s+/g, ''));
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function nextStep() {
+            currentStep++;
+            updateProgress();
+        }
+
+        // Main action functions
+        function showAgreementModal() {
+            document.getElementById('agreementModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('agreementModal').style.display = 'none';
+        }
+
+        function acceptAgreement() {
+            closeModal();
+            agreeToPayment();
+        }
+
+        function agreeToPayment() {
+            addMessage("✅ Excelente! Concordo com os termos e quero prosseguir com a inscrição.", false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage("Perfeito! 🎉 Vamos começar o processo de inscrição.<br><br>👤 Para começar, preciso do seu <strong>nome completo</strong>:");
+                    currentStep = 1;
+                    updateProgress();
+                    showInput();
+                }, 2500);
+            }, 1000);
+        }
+
+        function declinePayment() {
+            addMessage("❌ Não posso efetuar o pagamento neste momento.", false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage(`
+                        Compreendo perfeitamente! 😊<br><br>
+                        Para mais informações sobre <strong>formas de pagamento</strong>, <strong>bolsas de estudo</strong> ou outros esclarecimentos, entre em contacto com a nossa equipa:<br><br>
+                        📞 <strong>+244 923 456 789</strong><br>
+                        💬 <strong>WhatsApp:</strong> +244 923 456 789<br>
+                        📧 <strong>suporte@codestart20.ao</strong><br>
+                        🕒 <strong>Horário:</strong> Segunda a Sexta, 8h às 17h<br><br>
+                        Obrigado pelo interesse na Code Start 2.0! 🚀
+                    `);
+                }, 2500);
+            }, 1000);
+        }
+
+        function selectProvince(province) {
+            formData.province = province;
+            addMessage(`<i class="fas fa-map-marker-alt"></i> ${province}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    if (municipalities[province]) {
+                        const message = addMessage(`Província <strong>${province}</strong> selecionada! 📍<br><br>🏙️ Agora preciso saber em que <strong>município</strong> reside:`);
+                        
+                        const municipalityOptions = municipalities[province].slice(0, 6).map(municipality => ({
+                            html: `<i class="fas fa-building"></i> ${municipality}`,
+                            action: () => selectMunicipality(municipality)
+                        }));
+                        
+                        if (municipalities[province].length > 6) {
+                            municipalityOptions.push({
+                                html: `<i class="fas fa-list"></i> Ver todos os municípios`,
+                                action: () => showAllMunicipalities(province)
+                            });
+                        }
+                        
+                        addOptions(message, municipalityOptions);
+                    } else {
+                        addMessage(`Província <strong>${province}</strong> selecionada! 📍<br><br>🏙️ Por favor, digite o nome do <strong>município</strong> onde reside:`);
+                        showInput();
+                    }
+                }, 2000);
+            }, 1000);
+        }
+
+        function showAllMunicipalities(province) {
+            const message = addMessage(`🏙️ <strong>Todos os Municípios de ${province}:</strong>`);
+            
+            const allMunicipalityOptions = municipalities[province].map(municipality => ({
+                html: `<i class="fas fa-building"></i> ${municipality}`,
+                action: () => selectMunicipality(municipality)
+            }));
+
+            addOptions(message, allMunicipalityOptions);
+        }
+
+        function selectEducation(level) {
+            formData.education = level;
+            addMessage(`<i class="fas fa-graduation-cap"></i> ${level}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage(`Nível académico: <strong>${level}</strong> ✅<br><br>📱 Agora preciso dos seus <strong>contactos</strong>.<br><br>Qual é o seu <strong>número de telefone principal</strong>?`);
+                    formData.currentContactStep = 'phone1';
+                    showInput();
+                    nextStep();
+                }, 2000);
+            }, 1000);
+        }
+
+        function selectReference(reference) {
+            if (reference === 'Outro') {
+                addMessage(`<i class="fas fa-ellipsis-h"></i> Outro`, false);
+                setTimeout(() => {
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        hideTypingIndicator();
+                        addMessage(`Por favor, especifique como soube do nosso curso:`);
+                        showInput();
+                        formData.waitingForCustomReference = true;
+                    }, 1500);
+                }, 1000);
+                return;
+            }
+
+            formData.reference = reference;
+            addMessage(`<i class="fas fa-bullhorn"></i> ${reference}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    showCourseSelection();
+                }, 2000);
+            }, 1000);
+        }
+
+        function showCourseSelection() {
+            const message = addMessage(`📢 <strong>${formData.reference}</strong>, anotado! 👍<br><br>💻 Agora vamos à parte mais importante! Em que <strong>área(s)</strong> gostaria de se inscrever?<br><br><small>⚠️ Pode escolher no <strong>máximo 2 áreas</strong> em simultâneo:</small>`);
+
+            // Create course selection with checkboxes
+            setTimeout(() => {
+                const botContent = message.querySelector('.bot-content');
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'checkbox-group';
+
+                const courses = [
+                    {
+                        id: 'logic',
+                        name: 'Lógica de Programação',
+                        description: 'Fundamentos da programação e resolução de problemas',
+                        icon: 'fas fa-brain'
+                    },
+                    {
+                        id: 'webdev',
+                        name: 'Desenvolvimento Web',
+                        description: 'HTML, CSS, JavaScript e frameworks modernos',
+                        icon: 'fas fa-code'
+                    },
+                    {
+                        id: 'design',
+                        name: 'Design Gráfico + Motion Design',
+                        description: 'Design visual, animação e motion graphics',
+                        icon: 'fas fa-palette'
+                    }
+                ];
+
+                courses.forEach(course => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="course-${course.id}" value="${course.name}" onchange="handleCourseSelection(this)">
+                        <div class="checkbox-label">
+                            <i class="${course.icon}"></i> <strong>${course.name}</strong>
+                            <div class="checkbox-description">${course.description}</div>
+                        </div>
+                    `;
+                    checkboxContainer.appendChild(checkboxItem);
+                });
+
+                const confirmButton = document.createElement('button');
+                confirmButton.className = 'option-btn';
+                confirmButton.innerHTML = '<i class="fas fa-check"></i> Confirmar Seleção';
+                confirmButton.onclick = confirmCourseSelection;
+                confirmButton.style.marginTop = '16px';
+                confirmButton.disabled = true;
+                confirmButton.id = 'confirmCoursesBtn';
+
+                botContent.appendChild(checkboxContainer);
+                botContent.appendChild(confirmButton);
+            }, 500);
+
+            nextStep();
+        }
+
+        function handleCourseSelection(checkbox) {
+            const selectedCourses = document.querySelectorAll('input[type="checkbox"]:checked');
+            const confirmButton = document.getElementById('confirmCoursesBtn');
+            
+            if (selectedCourses.length > 2) {
+                checkbox.checked = false;
+                addMessage("⚠️ Só pode selecionar no máximo <strong>2 áreas</strong> em simultâneo. Por favor, desmarque uma área antes de selecionar outra.");
+                return;
+            }
+
+            confirmButton.disabled = selectedCourses.length === 0;
+            confirmButton.style.opacity = selectedCourses.length === 0 ? '0.5' : '1';
+        }
+
+        function confirmCourseSelection() {
+            const selectedCourses = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                                         .map(cb => cb.value);
+            
+            if (selectedCourses.length === 0) {
+                addMessage("⚠️ Por favor, selecione pelo menos <strong>1 área</strong> para continuar.");
+                return;
+            }
+
+            formData.courses = selectedCourses;
+            const coursesList = selectedCourses.map(course => `• ${course}`).join('<br>');
+            addMessage(`📚 ${selectedCourses.join(' + ')}`, false);
+
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const coursesText = selectedCourses.length === 1 ? 'área selecionada' : 'áreas selecionadas';
+                    addMessage(`Excelente escolha! 🎯<br><br><strong>${coursesText}:</strong><br>${coursesList}<br><br>🔐 Para finalizar, vou enviar um <strong>código de verificação</strong> para confirmar os seus dados.<br><br>Para onde pretende receber o código?`);
+                    
+                    const verificationMessage = document.querySelector('.message:last-child');
+                    const verificationOptions = [
+                        { html: `<i class="fas fa-sms"></i> SMS (${formData.phone1})`, action: () => selectVerificationMethod('SMS') },
+                        { html: `<i class="fab fa-whatsapp"></i> WhatsApp (${formData.phone1})`, action: () => selectVerificationMethod('WhatsApp') },
+                        { html: `<i class="fas fa-envelope"></i> Email (${formData.email})`, action: () => selectVerificationMethod('Email') }
+                    ];
+
+                    setTimeout(() => {
+                        addOptions(verificationMessage, verificationOptions);
+                    }, 500);
+                    
+                    nextStep();
+                }, 2500);
+            }, 1000);
+        }
+
+        function selectVerificationMethod(method) {
+            const contact = method === 'Email' ? formData.email : formData.phone1;
+            addMessage(`<i class="fas fa-${method.toLowerCase()}"></i> ${method} (${contact})`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+                    formData.verificationCode = verificationCode;
+                    
+                    addMessage(`📤 Código de verificação enviado via <strong>${method}</strong>!<br><br>🔢 Digite o código de <strong>6 dígitos</strong> que recebeu:<br><br><small>💡 <strong>Dica:</strong> Para este teste, o código é <code>${verificationCode}</code></small>`);
+                    showInput();
+                    nextStep();
+                }, 2000);
+            }, 1000);
+        }
+
+        function selectPaymentMethod(method) {
+            const contact = method === 'Email' ? formData.email : formData.phone1;
+            addMessage(`<i class="fas fa-${method.toLowerCase()}"></i> ${method} (${contact})`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    showPaymentInformation(method);
+                }, 2000);
+            }, 1000);
+        }
+
+        function showPaymentInformation(method) {
+            const paymentReference = generatePaymentReference();
+            const validityDate = new Date();
+            validityDate.setDate(validityDate.getDate() + 2);
+            const validityString = validityDate.toLocaleDateString('pt-PT');
+            
+            formData.paymentReference = paymentReference;
+            formData.paymentMethod = method;
+
+            const finalMessage = `
+                🎉 <strong>Inscrição Concluída com Sucesso!</strong><br><br>
+                
+                📋 <strong>Resumo da Inscrição:</strong><br>
+                👤 <strong>Nome:</strong> ${formData.name}<br>
+                📧 <strong>Email:</strong> ${formData.email}<br>
+                📱 <strong>Telefone:</strong> ${formData.phone1}<br>
+                📍 <strong>Localização:</strong> ${formData.neighborhood}, ${formData.municipality}, ${formData.province}<br>
+                🎓 <strong>Nível Académico:</strong> ${formData.education}<br>
+                💻 <strong>Curso(s):</strong> ${formData.courses.join(', ')}<br><br>
+                
+                💳 <strong>Informações de Pagamento:</strong><br>
+                💰 <strong>Valor:</strong> 15.000 Kz<br>
+                🔢 <strong>Referência:</strong> <code>${paymentReference}</code><br>
+                📅 <strong>Válida até:</strong> ${validityString}<br>
+                📤 <strong>Instruções enviadas via:</strong> ${method}<br><br>
+                
+                ⚠️ <strong>Importante:</strong><br>
+                • Efetue o pagamento até <strong>${validityString}</strong><br>
+                • Após confirmação do pagamento, receberá as credenciais de acesso<br>
+                • Guarde esta referência para futuros contactos<br><br>
+                
+                📞 <strong>Precisa de ajuda?</strong><br>
+                Entre em contacto: +244 923 456 789<br><br>
+                
+                <strong>Obrigado por escolher a Code Start 2.0!</strong> 🚀
+            `;
+
+            addMessage(finalMessage);
+            
+            // Add final action buttons
+            setTimeout(() => {
+                const finalMessageElement = document.querySelector('.message:last-child');
+                const finalOptions = [
+                    { html: `<i class="fas fa-download"></i> Baixar Comprovativo`, action: () => downloadReceipt() },
+                    { html: `<i class="fab fa-whatsapp"></i> Contactar Suporte`, action: () => contactSupport() },
+                    { html: `<i class="fas fa-home"></i> Voltar ao Início`, action: () => location.reload() }
+                ];
+
+                addOptions(finalMessageElement, finalOptions);
+            }, 1000);
+
+            hideInput();
+            currentStep = steps.length - 1;
+            updateProgress();
+        }
+
+        function generatePaymentReference() {
+            return 'TA' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100).toString().padStart(2, '0');
+        }
+
+        function downloadReceipt() {
+            addMessage("📄 Comprovativo baixado!", false);
+            // Here you would implement actual download functionality
+            setTimeout(() => {
+                addMessage("O comprovativo foi gerado com sucesso! 📋<br><br>Verifique a pasta de downloads do seu dispositivo.");
+            }, 1000);
+        }
+
+        function contactSupport() {
+            const whatsappMessage = `Olá! Acabei de me inscrever na Code Start 2.0.%0A%0ANome: ${formData.name}%0AReferência: ${formData.paymentReference}%0A%0APreciso de ajuda com o pagamento.`;
+            const whatsappUrl = `https://wa.me/244923456789?text=${whatsappMessage}`;
+            window.open(whatsappUrl, '_blank');
+            
+            addMessage("📱 WhatsApp aberto! Nossa equipa irá ajudá-lo.", false);
+        }
+
+        // Complete the missing input handlers
+        function handleLocationInput(input) {
+            if (formData.currentLocationStep === 'neighborhood') {
+                if (input.length < 2) {
+                    addMessage("🏘️ Por favor, insira o nome do bairro onde reside.");
+                    return;
+                }
+                
+                formData.neighborhood = input;
+                const message = addMessage(`Bairro <strong>${input}</strong>, perfeito! 🏠<br><br>🎓 Qual é o seu <strong>nível académico</strong>?`);
+                
+                const educationOptions = [
+                    { html: `<i class="fas fa-school"></i> Ensino Primário`, action: () => selectEducation('Ensino Primário') },
+                    { html: `<i class="fas fa-user-graduate"></i> Ensino Secundário (1º Ciclo)`, action: () => selectEducation('Ensino Secundário (1º Ciclo)') },
+                    { html: `<i class="fas fa-graduation-cap"></i> Ensino Secundário (2º Ciclo)`, action: () => selectEducation('Ensino Secundário (2º Ciclo)') },
+                    { html: `<i class="fas fa-tools"></i> Ensino Técnico-Profissional`, action: () => selectEducation('Ensino Técnico-Profissional') },
+                    { html: `<i class="fas fa-university"></i> Ensino Superior`, action: () => selectEducation('Ensino Superior') },
+                    { html: `<i class="fas fa-medal"></i> Pós-Graduação/Mestrado`, action: () => selectEducation('Pós-Graduação/Mestrado') }
+                ];
+
+                addOptions(message, educationOptions);
+                hideInput();
+                nextStep();
+            } else {
+                // Handle manual province/municipality input
+                if (!formData.province) {
+                    const inputProvince = input.trim();
+                    if (provinces.some(p => p.toLowerCase() === inputProvince.toLowerCase())) {
+                        selectProvince(provinces.find(p => p.toLowerCase() === inputProvince.toLowerCase()));
+                    } else {
+                        addMessage("🤔 Província não encontrada. Por favor, escolha uma das opções disponíveis ou verifique a ortografia.");
+                    }
+                } else if (!formData.municipality) {
+                    formData.municipality = input;
+                    addMessage(`Município <strong>${input}</strong>, anotado! 🏙️<br><br>🏘️ Qual é o seu <strong>bairro</strong>?`);
+                    formData.currentLocationStep = 'neighborhood';
+                }
+            }
+        }
+
+        function handleEducationInput(input) {
+            // This is handled by selectEducation function through buttons
+            addMessage("🎓 Por favor, selecione o seu nível académico usando os botões acima.");
+        }
+
+        function handleReferenceInput(input) {
+            if (formData.waitingForCustomReference) {
+                formData.reference = input;
+                formData.waitingForCustomReference = false;
+                
+                setTimeout(() => {
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        hideTypingIndicator();
+                        showCourseSelection();
+                    }, 2000);
+                }, 1000);
+            } else {
+                addMessage("📢 Por favor, selecione como soube do curso usando os botões acima.");
+            }
+        }
+
+        // Fix the processUserInput function to handle all cases properly
+        function processUserInput(input) {
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                hideTypingIndicator();
+                
+                // Handle custom reference input first
+                if (formData.waitingForCustomReference) {
+                    formData.reference = input;
+                    formData.waitingForCustomReference = false;
+                    
+                    setTimeout(() => {
+                        showTypingIndicator();
+                        setTimeout(() => {
+                            hideTypingIndicator();
+                            showCourseSelection();
+                        }, 2000);
+                    }, 500);
+                    isWaitingForResponse = false;
+                    return;
+                }
+                
+                switch(steps[currentStep].id) {
+                    case 'name':
+                        handleNameInput(input);
+                        break;
+                    case 'age':
+                        handleAgeInput(input);
+                        break;
+                    case 'location':
+                        handleLocationInput(input);
+                        break;
+                    case 'education':
+                        handleEducationInput(input);
+                        break;
+                    case 'contacts':
+                        handleContactsInput(input);
+                        break;
+                    case 'motivation':
+                        handleMotivationInput(input);
+                        break;
+                    case 'reference':
+                        handleReferenceInput(input);
+                        break;
+                    case 'verification':
+                        handleVerificationInput(input);
+                        break;
+                    default:
+                        addMessage("Desculpe, ocorreu um erro. Por favor, tente novamente.");
+                }
+                
+                isWaitingForResponse = false;
+            }, 2000);
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        // Handle modal clicks outside content
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('agreementModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal();
+                    }
+                });
+            }
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // ESC to close modal
+            if (e.key === 'Escape' && document.getElementById('agreementModal').style.display === 'flex') {
+                closeModal();
+            }
+        });
+
+        // Auto-focus input when shown
+        function showInput() {
+            const inputArea = document.getElementById('inputArea');
+            inputArea.style.display = 'block';
+            
+            setTimeout(() => {
+                const input = document.getElementById('userInput');
+                input.focus();
+                input.style.height = 'auto';
+            }, 100);
+        }
+
+        // Enhanced error handling
+        window.addEventListener('error', function(e) {
+            console.error('Erro na aplicação:', e);
+            if (!isWaitingForResponse) {
+                addMessage("❌ Ocorreu um erro inesperado. Por favor, recarregue a página ou entre em contacto connosco.");
+            }
+        });
+
+        // Add loading states for buttons
+        function setButtonLoading(button, loading = true) {
+            if (loading) {
+                button.disabled = true;
+                button.style.opacity = '0.6';
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            } else {
+                button.disabled = false;
+                button.style.opacity = '1';
+            }
+        }
+
+        // Enhanced form validation
+        function validateFormData() {
+            const required = ['name', 'age', 'province', 'municipality', 'neighborhood', 'education', 'phone1', 'email', 'motivation', 'reference', 'courses'];
+            const missing = required.filter(field => !formData[field] || (Array.isArray(formData[field]) && formData[field].length === 0));
+            
+            if (missing.length > 0) {
+                console.warn('Campos em falta:', missing);
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Data persistence (in memory)
+        function saveFormData() {
+            try {
+                window.tempFormData = { ...formData };
+                console.log('Dados guardados temporariamente');
+            } catch (e) {
+                console.warn('Não foi possível guardar os dados:', e);
+            }
+        }
+
+        function loadFormData() {
+            try {
+                if (window.tempFormData) {
+                    formData = { ...window.tempFormData };
+                    console.log('Dados recuperados');
+                    return true;
+                }
+            } catch (e) {
+                console.warn('Não foi possível recuperar os dados:', e);
+            }
+            return false;
+        }
+
+        // Enhanced municipality selection with search
+        function searchMunicipalities(province, searchTerm) {
+            if (!municipalities[province]) return [];
+            
+            return municipalities[province].filter(municipality => 
+                municipality.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Add paste event handling for verification code
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const input = document.getElementById('userInput');
+                if (input) {
+                    input.addEventListener('paste', function(e) {
+                        if (steps[currentStep]?.id === 'verification') {
+                            setTimeout(() => {
+                                const pastedText = this.value;
+                                if (pastedText.length === 6 && /^\d+$/.test(pastedText)) {
+                                    setTimeout(() => sendMessage(), 500);
+                                }
+                            }, 10);
+                        }
+                    });
+                }
+            }, 1000);
+        });
+
+        // Enhance the contact input handling
+        function handleContactsInput(input) {
+            if (formData.currentContactStep === 'phone1') {
+                if (!validatePhone(input)) {
+                    addMessage("📱 Por favor, insira um número de telefone válido.<br><small>Formatos aceites: +244 923 456 789, 244923456789, ou 923456789</small>");
+                    return;
+                }
+                formData.phone1 = formatPhone(input);
+                formData.currentContactStep = 'phone2';
+                addMessage(`Contacto principal: <strong>${formData.phone1}</strong> ✅<br><br>📱 Tem um <strong>segundo número</strong> de telefone?<br><small>Se não tiver, pode digitar "não" ou "skip"</small>`);
+                
+            } else if (formData.currentContactStep === 'phone2') {
+                if (input.toLowerCase().includes('não') || input.toLowerCase().includes('nao') || input.toLowerCase().includes('skip')) {
+                    formData.phone2 = null;
+                    addMessage("👍 Sem problema!<br><br>📧 Agora preciso do seu <strong>endereço de email</strong>:");
+                } else if (!validatePhone(input)) {
+                    addMessage("📱 Número inválido. Por favor, insira um telefone válido ou digite 'não' se não tiver segundo número.");
+                    return;
+                } else {
+                    formData.phone2 = formatPhone(input);
+                    addMessage(`Segundo contacto: <strong>${formData.phone2}</strong> ✅<br><br>📧 Agora preciso do seu <strong>endereço de email</strong>:`);
+                }
+                
+                formData.currentContactStep = 'email';
+                
+            } else if (formData.currentContactStep === 'email') {
+                if (!validateEmail(input)) {
+                    addMessage("📧 Email inválido. Por favor, use o formato: exemplo@dominio.com");
+                    return;
+                }
+                formData.email = input.toLowerCase();
+                addMessage(`Email registado: <strong>${formData.email}</strong> ✅<br><br>💭 Perfeito! Agora conte-me qual é a sua <strong>principal motivação</strong> para fazer este curso.<br><br><small>💡 Pode falar sobre os seus objetivos, sonhos profissionais ou o que espera alcançar...</small>`);
+                nextStep();
+                saveFormData(); // Save progress
+            }
+        }
+
+        // Phone formatting function
+        function formatPhone(phone) {
+            let cleaned = phone.replace(/\D/g, '');
+            
+            if (cleaned.startsWith('244')) {
+                cleaned = '+' + cleaned;
+            } else if (cleaned.startsWith('9') && cleaned.length === 9) {
+                cleaned = '+244' + cleaned;
+            }
+            
+            return cleaned;
+        }
+
+        // Enhanced email validation
+        function validateEmail(email) {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return emailRegex.test(email) && email.length <= 100;
+        }
+
+        // Enhanced phone validation for Angola
+        function validatePhone(phone) {
+            const cleaned = phone.replace(/\D/g, '');
+            
+            // Angola phone patterns
+            const patterns = [
+                /^244[9][0-9]{8}$/, // +244 9xxxxxxxx
+                /^[9][0-9]{8}$/     // 9xxxxxxxx
+            ];
+            
+            return patterns.some(pattern => pattern.test(cleaned));
+        }
+
+        // Add completion summary
+        function showCompletionSummary() {
+            const summaryData = {
+                name: formData.name,
+                age: formData.age,
+                location: `${formData.neighborhood}, ${formData.municipality}, ${formData.province}`,
+                education: formData.education,
+                phone1: formData.phone1,
+                phone2: formData.phone2 || 'Não fornecido',
+                email: formData.email,
+                motivation: formData.motivation.length > 100 ? formData.motivation.substring(0, 100) + '...' : formData.motivation,
+                reference: formData.reference,
+                courses: formData.courses.join(', ')
+            };
+
+            return summaryData;
+        }
+
+        // Final data validation before payment
+        function finalValidation() {
+            const isValid = validateFormData();
+            
+            if (!isValid) {
+                addMessage("❌ Alguns dados estão em falta. Vou reiniciar o processo para garantir que temos toda a informação necessária.");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+                return false;
+            }
+            
+            saveFormData();
+            return true;
+        }
+
+        // Complete showAllProvinces function (missing!)
+        function showAllProvinces() {
+            const message = addMessage("🌍 <strong>Todas as Províncias de Angola:</strong>");
+            
+            const allProvinceOptions = provinces.map(province => ({
+                html: `<i class="fas fa-map-marker-alt"></i> ${province}`,
+                action: () => selectProvince(province)
+            }));
+
+            addOptions(message, allProvinceOptions);
+        }
+
+        // Fix selectProvince function to handle step progression correctly
+        function selectProvince(province) {
+            formData.province = province;
+            addMessage(`<i class="fas fa-map-marker-alt"></i> ${province}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    if (municipalities[province] && municipalities[province].length > 0) {
+                        const message = addMessage(`Província <strong>${province}</strong> selecionada! 📍<br><br>🏙️ Agora preciso saber em que <strong>município</strong> reside:`);
+                        
+                        const municipalityOptions = municipalities[province].slice(0, 6).map(municipality => ({
+                            html: `<i class="fas fa-building"></i> ${municipality}`,
+                            action: () => selectMunicipality(municipality)
+                        }));
+                        
+                        if (municipalities[province].length > 6) {
+                            municipalityOptions.push({
+                                html: `<i class="fas fa-list"></i> Ver todos os municípios`,
+                                action: () => showAllMunicipalities(province)
+                            });
+                        }
+                        
+                        addOptions(message, municipalityOptions);
+                    } else {
+                        addMessage(`Província <strong>${province}</strong> selecionada! 📍<br><br>🏙️ Por favor, digite o nome do <strong>município</strong> onde reside:`);
+                        formData.currentLocationStep = 'municipality';
+                        showInput();
+                    }
+                }, 2000);
+            }, 1000);
+        }
+
+        // Fix selectMunicipality function
+        function selectMunicipality(municipality) {
+            formData.municipality = municipality;
+            addMessage(`<i class="fas fa-building"></i> ${municipality}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage(`Município <strong>${municipality}</strong>, anotado! 🏙️<br><br>🏘️ Qual é o seu <strong>bairro</strong>?`);
+                    formData.currentLocationStep = 'neighborhood';
+                    showInput();
+                }, 2000);
+            }, 1000);
+        }
+
+        // Fix handleLocationInput function
+        function handleLocationInput(input) {
+            if (formData.currentLocationStep === 'neighborhood') {
+                if (input.length < 2) {
+                    addMessage("🏘️ Por favor, insira o nome do bairro onde reside.");
+                    return;
+                }
+                
+                formData.neighborhood = input;
+                const message = addMessage(`Bairro <strong>${input}</strong>, perfeito! 🏠<br><br>🎓 Qual é o seu <strong>nível académico</strong>?`);
+                
+                const educationOptions = [
+                    { html: `<i class="fas fa-school"></i> Ensino Primário`, action: () => selectEducation('Ensino Primário') },
+                    { html: `<i class="fas fa-user-graduate"></i> Ensino Secundário (1º Ciclo)`, action: () => selectEducation('Ensino Secundário (1º Ciclo)') },
+                    { html: `<i class="fas fa-graduation-cap"></i> Ensino Secundário (2º Ciclo)`, action: () => selectEducation('Ensino Secundário (2º Ciclo)') },
+                    { html: `<i class="fas fa-tools"></i> Ensino Técnico-Profissional`, action: () => selectEducation('Ensino Técnico-Profissional') },
+                    { html: `<i class="fas fa-university"></i> Ensino Superior`, action: () => selectEducation('Ensino Superior') },
+                    { html: `<i class="fas fa-medal"></i> Pós-Graduação/Mestrado`, action: () => selectEducation('Pós-Graduação/Mestrado') }
+                ];
+
+                addOptions(message, educationOptions);
+                hideInput();
+                nextStep();
+                
+            } else if (formData.currentLocationStep === 'municipality') {
+                if (input.length < 2) {
+                    addMessage("🏙️ Por favor, insira o nome do município onde reside.");
+                    return;
+                }
+                
+                formData.municipality = input;
+                addMessage(`Município <strong>${input}</strong>, anotado! 🏙️<br><br>🏘️ Qual é o seu <strong>bairro</strong>?`);
+                formData.currentLocationStep = 'neighborhood';
+                
+            } else {
+                // Handle manual province input
+                const inputProvince = input.trim();
+                const matchedProvince = provinces.find(p => p.toLowerCase() === inputProvince.toLowerCase());
+                
+                if (matchedProvince) {
+                    selectProvince(matchedProvince);
+                } else {
+                    addMessage("🤔 Província não encontrada. Por favor, escolha uma das opções disponíveis:<br><br>💡 Dica: Pode clicar em 'Ver todas as províncias' para ver a lista completa.");
+                    
+                    setTimeout(() => {
+                        const message = addMessage("🌍 Ou escolha uma das províncias principais:");
+                        const mainProvinces = ['Luanda', 'Benguela', 'Huambo', 'Huíla', 'Malanje', 'Uíge'];
+                        const mainProvinceOptions = mainProvinces.map(province => ({
+                            html: `<i class="fas fa-map-marker-alt"></i> ${province}`,
+                            action: () => selectProvince(province)
+                        }));
+                        
+                        mainProvinceOptions.push({
+                            html: `<i class="fas fa-list"></i> Ver todas as províncias`,
+                            action: () => showAllProvinces()
+                        });
+                        
+                        addOptions(message, mainProvinceOptions);
+                        hideInput();
+                    }, 1000);
+                }
+            }
+        }
+
+        // Fix the missing selectEducation function call
+        function selectEducation(level) {
+            formData.education = level;
+            addMessage(`<i class="fas fa-graduation-cap"></i> ${level}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage(`Nível académico: <strong>${level}</strong> ✅<br><br>📱 Agora preciso dos seus <strong>contactos</strong>.<br><br>Qual é o seu <strong>número de telefone principal</strong>?<br><small>Exemplo: +244 923 456 789 ou 923456789</small>`);
+                    formData.currentContactStep = 'phone1';
+                    showInput();
+                    nextStep();
+                }, 2000);
+            }, 1000);
+        }
+
+        // Complete selectReference function
+        function selectReference(reference) {
+            if (reference === 'Outro') {
+                addMessage(`<i class="fas fa-ellipsis-h"></i> Outro`, false);
+                setTimeout(() => {
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        hideTypingIndicator();
+                        addMessage(`Por favor, especifique como soube do nosso curso:`);
+                        showInput();
+                        formData.waitingForCustomReference = true;
+                    }, 1500);
+                }, 1000);
+                return;
+            }
+
+            formData.reference = reference;
+            addMessage(`<i class="fas fa-bullhorn"></i> ${reference}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    showCourseSelection();
+                }, 2000);
+            }, 1000);
+        }
+
+        // Complete showCourseSelection function
+        function showCourseSelection() {
+            const message = addMessage(`📢 <strong>${formData.reference}</strong>, anotado! 👍<br><br>💻 Agora vamos à parte mais importante! Em que <strong>área(s)</strong> gostaria de se inscrever?<br><br><small>⚠️ Pode escolher no <strong>máximo 2 áreas</strong> em simultâneo:</small>`);
+
+            // Create course selection with checkboxes
+            setTimeout(() => {
+                const botContent = message.querySelector('.bot-content');
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'checkbox-group';
+
+                const courses = [
+                    {
+                        id: 'logic',
+                        name: 'Lógica de Programação',
+                        description: 'Fundamentos da programação e resolução de problemas',
+                        icon: 'fas fa-brain'
+                    },
+                    {
+                        id: 'webdev',
+                        name: 'Desenvolvimento Web',
+                        description: 'HTML, CSS, JavaScript e frameworks modernos',
+                        icon: 'fas fa-code'
+                    },
+                    {
+                        id: 'design',
+                        name: 'Design Gráfico + Motion Design',
+                        description: 'Design visual, animação e motion graphics',
+                        icon: 'fas fa-palette'
+                    }
+                ];
+
+                courses.forEach(course => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="course-${course.id}" value="${course.name}" onchange="handleCourseSelection(this)">
+                        <div class="checkbox-label">
+                            <i class="${course.icon}"></i> <strong>${course.name}</strong>
+                            <div class="checkbox-description">${course.description}</div>
+                        </div>
+                    `;
+                    checkboxContainer.appendChild(checkboxItem);
+                });
+
+                const confirmButton = document.createElement('button');
+                confirmButton.className = 'option-btn';
+                confirmButton.innerHTML = '<i class="fas fa-check"></i> Confirmar Seleção';
+                confirmButton.onclick = confirmCourseSelection;
+                confirmButton.style.marginTop = '16px';
+                confirmButton.disabled = true;
+                confirmButton.id = 'confirmCoursesBtn';
+
+                botContent.appendChild(checkboxContainer);
+                botContent.appendChild(confirmButton);
+            }, 500);
+
+            nextStep();
+        }
+
+        // Complete handleCourseSelection function
+        function handleCourseSelection(checkbox) {
+            const selectedCourses = document.querySelectorAll('input[type="checkbox"]:checked');
+            const confirmButton = document.getElementById('confirmCoursesBtn');
+            
+            if (selectedCourses.length > 2) {
+                checkbox.checked = false;
+                addMessage("⚠️ Só pode selecionar no máximo <strong>2 áreas</strong> em simultâneo. Por favor, desmarque uma área antes de selecionar outra.");
+                return;
+            }
+
+            confirmButton.disabled = selectedCourses.length === 0;
+            confirmButton.style.opacity = selectedCourses.length === 0 ? '0.5' : '1';
+        }
+
+        // Complete confirmCourseSelection function
+        function confirmCourseSelection() {
+            const selectedCourses = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                                         .map(cb => cb.value);
+            
+            if (selectedCourses.length === 0) {
+                addMessage("⚠️ Por favor, selecione pelo menos <strong>1 área</strong> para continuar.");
+                return;
+            }
+
+            formData.courses = selectedCourses;
+            const coursesList = selectedCourses.map(course => `• ${course}`).join('<br>');
+            addMessage(`📚 ${selectedCourses.join(' + ')}`, false);
+
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const coursesText = selectedCourses.length === 1 ? 'área selecionada' : 'áreas selecionadas';
+                    addMessage(`Excelente escolha! 🎯<br><br><strong>${coursesText}:</strong><br>${coursesList}<br><br>🔐 Para finalizar, vou enviar um <strong>código de verificação</strong> para confirmar os seus dados.<br><br>Para onde pretende receber o código?`);
+                    
+                    const verificationMessage = document.querySelector('.message:last-child');
+                    const verificationOptions = [
+                        { html: `<i class="fas fa-sms"></i> SMS (${formData.phone1})`, action: () => selectVerificationMethod('SMS') },
+                        { html: `<i class="fab fa-whatsapp"></i> WhatsApp (${formData.phone1})`, action: () => selectVerificationMethod('WhatsApp') },
+                        { html: `<i class="fas fa-envelope"></i> Email (${formData.email})`, action: () => selectVerificationMethod('Email') }
+                    ];
+
+                    setTimeout(() => {
+                        addOptions(verificationMessage, verificationOptions);
+                    }, 500);
+                    
+                    nextStep();
+                }, 2500);
+            }, 1000);
+        }
+
+        // Complete selectVerificationMethod function
+        function selectVerificationMethod(method) {
+            const contact = method === 'Email' ? formData.email : formData.phone1;
+            addMessage(`<i class="fas fa-${method.toLowerCase()}"></i> ${method} (${contact})`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+                    formData.verificationCode = verificationCode;
+                    
+                    addMessage(`📤 Código de verificação enviado via <strong>${method}</strong>!<br><br>🔢 Digite o código de <strong>6 dígitos</strong> que recebeu:<br><br><small>💡 <strong>Para este teste, o código é:</strong> <code style="background: var(--bg-quaternary); padding: 4px 8px; border-radius: 4px; color: var(--primary-green); font-weight: bold;">${verificationCode}</code></small>`);
+                    showInput();
+                    nextStep();
+                }, 2000);
+            }, 1000);
+        }
+
+        // Complete selectPaymentMethod function
+        function selectPaymentMethod(method) {
+            const contact = method === 'Email' ? formData.email : formData.phone1;
+            addMessage(`<i class="fas fa-${method.toLowerCase()}"></i> ${method} (${contact})`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    showPaymentInformation(method);
+                }, 2000);
+            }, 1000);
+        }
+
+        // Complete showPaymentInformation function
+        function showPaymentInformation(method) {
+            const paymentReference = generatePaymentReference();
+            const validityDate = new Date();
+            validityDate.setDate(validityDate.getDate() + 2);
+            const validityString = validityDate.toLocaleDateString('pt-PT');
+            
+            formData.paymentReference = paymentReference;
+            formData.paymentMethod = method;
+
+            const finalMessage = `
+                🎉 <strong>Inscrição Concluída com Sucesso!</strong><br><br>
+                
+                📋 <strong>Resumo da Inscrição:</strong><br>
+                👤 <strong>Nome:</strong> ${formData.name}<br>
+                📧 <strong>Email:</strong> ${formData.email}<br>
+                📱 <strong>Telefone:</strong> ${formData.phone1}<br>
+                📍 <strong>Localização:</strong> ${formData.neighborhood}, ${formData.municipality}, ${formData.province}<br>
+                🎓 <strong>Nível Académico:</strong> ${formData.education}<br>
+                💻 <strong>Curso(s):</strong> ${formData.courses.join(', ')}<br><br>
+                
+                💳 <strong>Informações de Pagamento:</strong><br>
+                💰 <strong>Valor:</strong> 15.000 Kz<br>
+                🔢 <strong>Referência:</strong> <code style="background: var(--bg-quaternary); padding: 4px 8px; border-radius: 4px; color: var(--primary-green); font-weight: bold;">${paymentReference}</code><br>
+                📅 <strong>Válida até:</strong> ${validityString}<br>
+                📤 <strong>Instruções enviadas via:</strong> ${method}<br><br>
+                
+                ⚠️ <strong>Importante:</strong><br>
+                • Efetue o pagamento até <strong>${validityString}</strong><br>
+                • Após confirmação do pagamento, receberá as credenciais de acesso<br>
+                • Guarde esta referência para futuros contactos<br><br>
+                
+                📞 <strong>Precisa de ajuda?</strong><br>
+                Entre em contacto: +244 923 456 789<br><br>
+                
+                <strong>Obrigado por escolher a Code Start 2.0!</strong> 🚀
+            `;
+
+            addMessage(finalMessage);
+            
+            // Add final action buttons
+            setTimeout(() => {
+                const finalMessageElement = document.querySelector('.message:last-child');
+                const finalOptions = [
+                    { html: `<i class="fas fa-download"></i> Baixar Comprovativo`, action: () => downloadReceipt() },
+                    { html: `<i class="fab fa-whatsapp"></i> Contactar Suporte`, action: () => contactSupport() },
+                    { html: `<i class="fas fa-home"></i> Nova Inscrição`, action: () => location.reload() }
+                ];
+
+                addOptions(finalMessageElement, finalOptions);
+            }, 1000);
+
+            hideInput();
+            currentStep = steps.length - 1;
+            updateProgress();
+        }
+
+        // Complete generatePaymentReference function
+        function generatePaymentReference() {
+            return 'TA' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100).toString().padStart(2, '0');
+        }
+
+        // Complete downloadReceipt function
+        function downloadReceipt() {
+            addMessage("📄 Preparando comprovativo...", false);
+            
+            setTimeout(() => {
+                // Create receipt content
+                const receiptContent = `
+===========================================
+    Code Start 2.0 - COMPROVATIVO
+===========================================
+
+DADOS PESSOAIS:
+Nome: ${formData.name}
+Idade: ${formData.age} anos
+Localização: ${formData.neighborhood}, ${formData.municipality}, ${formData.province}
+Nível Académico: ${formData.education}
+
+CONTACTOS:
+Telefone 1: ${formData.phone1}
+Telefone 2: ${formData.phone2 || 'Não fornecido'}
+Email: ${formData.email}
+
+CURSO:
+Área(s): ${formData.courses.join(', ')}
+Motivação: ${formData.motivation}
+Como soube: ${formData.reference}
+
+PAGAMENTO:
+Valor: 15.000 Kz
+Referência: ${formData.paymentReference}
+Método de envio: ${formData.paymentMethod}
+
+Data: ${new Date().toLocaleDateString('pt-PT')}
+Hora: ${new Date().toLocaleTimeString('pt-PT')}
+
+===========================================
+Code Start 2.0, Lda.
+NIF: 5417258963
++244 923 456 789
+info@codestart20.ao
+===========================================
+                `;
+
+                // Create and download file
+                const blob = new Blob([receiptContent], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `codestart20_Comprovativo_${formData.paymentReference}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                addMessage("✅ Comprovativo baixado com sucesso! 📋<br><br>Verifique a pasta de downloads do seu dispositivo.");
+            }, 1500);
+        }
+
+        // Complete contactSupport function
+        function contactSupport() {
+            const whatsappMessage = `Olá! Acabei de me inscrever na Code Start 2.0.%0A%0ANome: ${formData.name}%0AReferência: ${formData.paymentReference}%0ACurso(s): ${formData.courses.join(', ')}%0A%0APreciso de ajuda com o processo de pagamento.`;
+            const whatsappUrl = `https://wa.me/244923456789?text=${whatsappMessage}`;
+            window.open(whatsappUrl, '_blank');
+            
+            addMessage("📱 WhatsApp aberto! Nossa equipa irá ajudá-lo em breve.", false);
+        }
+
+        // Add final error handling and initialization
+        function initializeApp() {
+            try {
+                init();
+                console.log('🚀 Code Start 2.0 - Assistente de Inscrição carregado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao inicializar:', error);
+                document.body.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100vh; background: var(--bg-primary); color: var(--text-primary); text-align: center; flex-direction: column;">
+                        <h2>⚠️ Erro de Carregamento</h2>
+                        <p>Ocorreu um erro ao carregar o assistente.</p>
+                        <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: var(--primary-green); border: none; border-radius: 8px; cursor: pointer;">Tentar Novamente</button>
+                    </div>
+                `;
+            }
+        }
+
+        console.log('🚀 Code Start 2.0 - Assistente de Inscrição carregado com sucesso!');
+    </script>
+</body>
+</html>000);
+        }
+
+        function showAllProvinces() {
+            const message = addMessage("🌍 <strong>Todas as Províncias de Angola:</strong>");
+            
+            const allProvinceOptions = provinces.map(province => ({
+                html: `<i class="fas fa-map-marker-alt"></i> ${province}`,
+                action: () => selectProvince(province)
+            }));
+
+            addOptions(message, allProvinceOptions);
+        }
+
+        function selectMunicipality(municipality) {
+            formData.municipality = municipality;
+            addMessage(`<i class="fas fa-building"></i> ${municipality}`, false);
+            
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage(`Município <strong>${municipality}</strong>, anotado! 🏙️<br><br>🏘️ Qual é o seu <strong>bairro</strong>?`);
+                    formData.currentLocationStep = 'neighborhood';
+                    showInput();
+                }, 2000);
+            }, 1
