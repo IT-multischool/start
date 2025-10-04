@@ -2,7 +2,10 @@
 <html lang="pt">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>CodeBot - Assistente Code Start 2.0</title>
     <style>
       * {
@@ -223,6 +226,8 @@
           rgba(0, 0, 0, 0.3) 0%,
           rgba(179, 226, 52, 0.02) 100%
         );
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
       }
 
       .welcome-screen {
@@ -467,7 +472,7 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 22px;
         color: #ffffff;
-        font-size: 14px;
+        font-size: 16px;
         font-family: Arial, sans-serif;
         resize: none;
         outline: none;
@@ -624,6 +629,8 @@
       /* Substitui/atualiza as media queries existentes */
       @media (max-width: 768px) {
         .sidebar {
+          width: 80%;
+          max-width: 320px;
           position: fixed;
           height: 100%;
           z-index: 200;
@@ -647,6 +654,27 @@
 
         .sidebar-overlay.active {
           display: block;
+        }
+
+        .header {
+          padding: 15px 20px;
+        }
+
+        .chat-area {
+          padding: 20px;
+        }
+
+        .input-area {
+          padding: 15px 20px;
+        }
+
+        .suggestions-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .suggestion-card {
+          padding: 20px;
         }
       }
 
@@ -700,7 +728,11 @@
         <div class="sidebar-header">
           <div class="logo">🤖</div>
           <div class="app-title">
-            <a href="https://codestart20.vercel.app" style="color: #b3e234; text-decoration: none;">CodeBot</a>
+            <a
+              href="https://codestart20.vercel.app"
+              style="color: #b3e234; text-decoration: none"
+              >CodeBot</a
+            >
           </div>
           <div class="app-subtitle">Code Start 2.0 AI Assistant</div>
         </div>
@@ -792,7 +824,7 @@
               <textarea
                 id="messageInput"
                 class="message-input"
-                placeholder="Pergunta sobre Lógica de Programação, Dev Web + IA, ou Design Gráfico + Motion..."
+                placeholder="Qual é a sua dúvida?"
                 rows="1"
                 onkeydown="handleKeyDown(event)"
                 oninput="autoResize(this)"
@@ -1172,6 +1204,11 @@
                         </p>
                         
                         <div class="suggestions-grid">
+                             <div class="suggestion-card" onclick="sendSuggestion('Fala-me sobre o Code Start 2.0?')">
+                                <span class="suggestion-icon">🚀</span>
+                                <h4 class="suggestion-title">Code Start 2.0</h4>
+                                <p class="suggestion-description">O que é o code start 2.0?</p>
+                            </div>
                             <div class="suggestion-card" onclick="sendSuggestion('Como posso começar a aprender lógica de programação do zero?')">
                                 <span class="suggestion-icon">🧠</span>
                                 <h4 class="suggestion-title">Lógica de Programação</h4>
@@ -1206,7 +1243,12 @@
         }
 
         showTypingIndicator() {
-          document.getElementById("typingIndicator").style.display = "flex";
+          const typing = document.getElementById("typingIndicator");
+          const chatArea = document.getElementById("chatArea");
+          typing.style.display = "flex";
+          if (chatArea.lastChild !== typing) {
+            chatArea.appendChild(typing);
+          }
           this.scrollToBottom();
         }
 
