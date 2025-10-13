@@ -2780,65 +2780,179 @@
                 <a href="https://inscricao-livid.vercel.app">Inscrever-me</a>
               </p>
             </div>
-            <div
-              style="
-                text-align: center;
-                font-family: Arial, sans-serif;
-                margin: 20px 0;
-              "
-            >
-              <div
-                id="countdown-timer"
-                style="font-size: 36px; font-weight: bold; margin-bottom: 10px"
-              >
-                Faltam 0 dias 0 horas, 0 minutos, 0 segundos
+            <div class="container">
+              <div class="subtitle" id="subtitle">Contagem regressiva</div>
+
+              <div class="countdown-wrapper" id="countdown-wrapper">
+                <div class="countdown-box">
+                  <span class="countdown-number" id="days">0</span>
+                  <span class="countdown-label">Dias</span>
+                </div>
+                <div class="countdown-box">
+                  <span class="countdown-number" id="hours">0</span>
+                  <span class="countdown-label">Horas</span>
+                </div>
+                <div class="countdown-box">
+                  <span class="countdown-number" id="minutes">0</span>
+                  <span class="countdown-label">Minutos</span>
+                </div>
+                <div class="countdown-box">
+                  <span class="countdown-number" id="seconds">0</span>
+                  <span class="countdown-label">Segundos</span>
+                </div>
               </div>
-              <div
-                id="countdown-subtitle"
-                style="font-size: 20px; color: #b3e234"
-              >
-                para o início do curso
-              </div>
+
+              <div class="message" id="message"></div>
             </div>
+            <style>
+              .container {
+                text-align: center;
+                padding: 60px 40px;
+                border-radius: 20px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+                border: 2px solid #b3e234;
+              }
 
-            <script>
-              // Data alvo (03 de novembro de 2025)
-              var countDownDate = new Date("Nov 17, 2025 08:00:00").getTime();
+              .subtitle {
+                font-size: 24px;
+                color: #b3e234;
+                margin-bottom: 30px;
+                font-weight: 600;
+                letter-spacing: 1px;
+              }
 
-              var x = setInterval(function () {
-                var now = new Date().getTime();
-                var distance = countDownDate - now;
+              .countdown-wrapper {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+                flex-wrap: wrap;
+                margin-bottom: 30px;
+              }
 
-                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                var hours = Math.floor(
-                  (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-                );
-                var minutes = Math.floor(
-                  (distance % (1000 * 60 * 60)) / (1000 * 60)
-                );
-                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+              .countdown-box {
+                background: #1a1a1a;
+                border-radius: 15px;
+                padding: 20px 25px;
+                min-width: 100px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+                border: 2px solid #b3e234;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+              }
 
-                var countdownText =
-                  "Faltam " +
-                  days +
-                  " dias " +
-                  hours +
-                  " horas, " +
-                  minutes +
-                  " minutos, " +
-                  seconds +
-                  " segundos";
+              .countdown-box:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(179, 226, 52, 0.4);
+              }
 
-                if (distance < 0) {
-                  clearInterval(x);
-                  countdownText = "O curso já começou!";
-                  document.getElementById("countdown-subtitle").style.display =
-                    "none";
+              .countdown-number {
+                font-size: 48px;
+                font-weight: bold;
+                color: #b3e234;
+                display: block;
+                line-height: 1;
+                margin-bottom: 10px;
+              }
+
+              .countdown-label {
+                font-size: 14px;
+                color: #b3e234;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                font-weight: 600;
+              }
+
+              .message {
+                font-size: 20px;
+                color: #b3e234;
+                font-weight: 500;
+                margin-top: 30px;
+                animation: pulse 2s infinite;
+              }
+
+              .completed {
+                background: #1a1a1a;
+                font-size: 32px;
+                color: #b3e234;
+                padding: 40px 20px;
+                border-radius: 15px;
+                font-weight: bold;
+                border: 2px solid #b3e234;
+              }
+
+              @keyframes pulse {
+                0%,
+                100% {
+                  opacity: 1;
+                }
+                50% {
+                  opacity: 0.7;
+                }
+              }
+
+              @media (max-width: 768px) {
+                .container {
+                  padding: 40px 20px;
                 }
 
-                document.getElementById("countdown-timer").innerHTML =
-                  countdownText;
-              }, 1000);
+                .countdown-number {
+                  font-size: 36px;
+                }
+
+                .subtitle {
+                  font-size: 18px;
+                }
+
+                .countdown-box {
+                  min-width: 80px;
+                  padding: 15px 20px;
+                }
+              }
+            </style>
+            <script>
+              // Data alvo (17 de novembro de 2025, 08:00)
+              const countDownDate = new Date("Nov 17, 2025 08:00:00").getTime();
+
+              function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+
+                if (distance < 0) {
+                  clearInterval(timerInterval);
+                  document.getElementById("countdown-wrapper").innerHTML = "";
+                  document.getElementById("subtitle").style.display = "none";
+                  document.getElementById("message").innerHTML =
+                    '<div class="completed">🎉 O curso já começou! 🎉</div>';
+                  return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor(
+                  (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+                );
+                const minutes = Math.floor(
+                  (distance % (1000 * 60 * 60)) / (1000 * 60)
+                );
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").textContent = String(
+                  days
+                ).padStart(2, "0");
+                document.getElementById("hours").textContent = String(
+                  hours
+                ).padStart(2, "0");
+                document.getElementById("minutes").textContent = String(
+                  minutes
+                ).padStart(2, "0");
+                document.getElementById("seconds").textContent = String(
+                  seconds
+                ).padStart(2, "0");
+
+                document.getElementById("message").textContent =
+                  "Faltam " + days + " dias para começar! 🚀";
+              }
+
+              updateCountdown();
+              const timerInterval = setInterval(updateCountdown, 1000);
             </script>
           </div>
         </div>
